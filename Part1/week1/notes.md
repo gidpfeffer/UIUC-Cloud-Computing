@@ -4,16 +4,16 @@
 
 ### Definitions
 
-**Cloud**: a Lot of storage resources with compute cycles located nearby.
+**Cloud** - a Lot of storage resources with compute cycles located nearby.
 
-**Single Site Cloud (Datacenter)**
+**Single Site Cloud (Datacenter)** -
   * Compute nodes(grouped into racks)
   * Switches, connecting the racks
   * A network topology
   * Storage nodes connected to servers
   * Software services
  
-**Geographically Distributed**
+**Geographically Distributed** -
   * Multiple single sites
   * generally sites have similar software stacks
 
@@ -37,5 +37,14 @@
   * On demand access
   * Data intensive nature
   * New cloud computing paradigms (MapReduce, Hadoop, NoSQL, Cassandra, MongoDB)
+  
+  ## Distributed Systems
+  
+  ### Definitions
+  
+  **Operating Systems** - Provides a user interface to hardware, allocates storage, and manages computational resources.
+  
+  **Distributed Systems** - A collection of entities, each of which is autonomous, programmable, asynchronous and failure prone, and which communicate through an unreliable communication medium.
+  
   
     
