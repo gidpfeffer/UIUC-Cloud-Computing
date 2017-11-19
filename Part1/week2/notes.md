@@ -26,6 +26,10 @@ The gossip converges in a factor of the logarithmic number of total nodes (n). T
 
 The first half of propogation still takes O(log(n)) though the second half takes O(log(log(n))). It infects at a very rapid rate once half of thepopulation is infected (is intuitive why).
 
+### Topology Aware Gossiping
+
+Gossips inside its own subnet with much higher probability than it would gossip outside of it's subnet.
+
 ## Membership
 
 ## Grids
