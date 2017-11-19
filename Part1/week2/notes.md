@@ -18,7 +18,13 @@ Periodically, the sender picks **b** random targets and sends them copies of the
 
 ### Analysis
 
+#### Push
+
 The gossip converges in a factor of the logarithmic number of total nodes (n). The differential equations can be found in the slides. If half of the nodes fail, it can be shown that the time required to propogate all messages is still bounded by log (clog(n) -> 2clog(n)).
+
+#### Pull
+
+The first half of propogation still takes O(log(n)) though the second half takes O(log(log(n))). It infects at a very rapid rate once half of thepopulation is infected (is intuitive why).
 
 ## Membership
 
