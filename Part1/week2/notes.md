@@ -28,7 +28,7 @@ The first half of propogation still takes O(log(n)) though the second half takes
 
 ### Topology Aware Gossiping
 
-Gossips inside its own subnet with much higher probability than it would gossip outside of it's subnet.
+Gossips inside its own subnet with much higher probability than it would gossip outside of it's subnet. Reduces load on router to O(1) if you distribute the probability correctly. 
 
 ## Membership
 
