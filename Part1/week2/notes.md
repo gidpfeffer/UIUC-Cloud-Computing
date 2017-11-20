@@ -46,6 +46,14 @@ Membership lists are maintained of currently working processes.
 
 Gossip style communicates updated heartbeat tables. The reciever merges the table with itself. Only the more recent entries than what it currently has is merged into the recievers table. It table entry is updated if and only if the heartbeat counter is higher for the data coming in. If a signal for a certain entry has not been recieved for a certain amount of time, it is marked as failing.
 
+### SWIM
+
+pj first pings pj. If pj responds, the stage is over. If not, pi pings k other nodes telling them to ping pj. Spatially and temporally, attempts are made to guarentee failure. As you increase k, the probability of mistake falls. Each member maintains a target list which it selects iits ping taget from at random. Follows geometric distribution in terms of number of calls until it checks for a specific node.
+
+You can bound to O(n) by randomly permuting the list and traversing it in order. Piggyback information about recent failures on top of ping messages. Known as epidemic style dissemination. Most rocesses know about filures after log(n) timesteps.
+
+INstead of using absolutes, can improve the algorithm by assigning a node to suspected before setting it to failing. The node or other nodes may tell you it is still alive, in which case you set it back. You use incranation numbers to maintain consistency while going back and forth between working and suspecting.
+
 ## Grids
 
 
