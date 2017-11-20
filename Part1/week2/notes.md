@@ -32,5 +32,22 @@ Gossips inside its own subnet with much higher probability than it would gossip 
 
 ## Membership
 
+Trying to solve crash stop or fail stop failures (process fails and does not recover).
+
+### Group Membership Service
+
+Membership lists are maintained of currently working processes. 
+
+**Strongly Consistent** paradigm maintains that all processes maintain a complete list. 
+
+**Almost Complete** lists (gossip-style or SWIM). Responsible for detecting failures and disseminating information (such as process joining and leaving).
+
+### Gossip Sytle Failure Detection
+
+Gossip style communicates updated heartbeat tables. The reciever merges the table with itself. Only the more recent entries than what it currently has is merged into the recievers table. It table entry is updated if and only if the heartbeat counter is higher for the data coming in. If a signal for a certain entry has not been recieved for a certain amount of time, it is marked as failing.
+
 ## Grids
+
+
+
 
