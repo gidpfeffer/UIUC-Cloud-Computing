@@ -56,6 +56,34 @@ INstead of using absolutes, can improve the algorithm by assigning a node to sus
 
 ## Grids
 
+Used for running computationally intensive programs on a cluster (without using a supercomputer). 
+
+### Overview
+
+Jobs are modeled as a directed acyclic graph. If you topologically sort the DAG, you can find processes which are able to be run at the same time. 
+
+### Stages
+
+1) Initialization
+2) Stage data in 
+3) Execute
+4) Stage data out
+5) Publish
+
+### Infrastructure
+
+There are **intra-site** and **inter-site** protocols.
+
+#### HTCondor
+
+High throughput computing system. Under the class of a cycle scavenging system.
+ 
+Run on machines with regular users. When a computer goes idle, it gets brought in to be used by the protocol. When a user returns, the process is killed and restarted elsewhere.
+
+#### Globus
+
+Used for an inter-site protocol. Provides a well defined API for sites to communicate with one another. Allocates jobs to particular sites and passes files between sites when necessary.
+
 
 
 
