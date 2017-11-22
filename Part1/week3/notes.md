@@ -1,62 +1,35 @@
-# Week 1 Notes
+# Week 3 Notes
 
-## Intro To Clouds
+## Peer 2 Peer Systems
 
-### Definitions
+### Napster
 
-**Cloud** - a Lot of storage resources with compute cycles located nearby.
+Files are stored locally, not remotely. The remote servers hold file and peer pointers. When a client searches, a message goes out to the server with the keywords in them. The group of servers talk to each other, search their databases for matches, and returns them to the client. When a download starts, TCP sockets are used to download the file from the remote user to the local user. DNS routing delivers the ip of the server for the peer to connect to when starting up.
 
-**Single Site Cloud (Datacenter)** -
-  * Compute nodes(grouped into racks)
-  * Switches, connecting the racks
-  * A network topology
-  * Storage nodes connected to servers
-  * Software services
- 
-**Geographically Distributed** -
-  * Multiple single sites
-  * generally sites have similar software stacks
+**Problems**: Centralized servers lead to a single point of failure. Overloaded servers could become very slow. 
 
-### Cloud Computing Industry Leaders
+### Gnutella
 
-  * Amazon AWS
-  * Microsoft Azure
-  * Google Engine
-  
-### Timeline
-  
-   1. First data centers (ENIAC, ORDVAC, ILLIAC)
-   2. Data processing (Honeywell, IBM)
-   3. Grid Network (Gryphn)
-   4. Peer to peer (bit torrent)
-   5. Cloud
-  
-  ### New Features In Cloud
-  
-  * Massive Scale
-  * On demand access
-  * Data intensive nature
-  * New cloud computing paradigms (MapReduce, Hadoop, NoSQL, Cassandra, MongoDB)
-  
-  ## Distributed Systems
-  
-  ### Definitions
-  
-  **Operating Systems** - Provides a user interface to hardware, allocates storage, and manages computational resources.
-  
-  **Distributed Systems** - A collection of entities, each of which is autonomous, programmable, asynchronous and failure prone, and which communicate through an unreliable communication medium.
-  
-  ## Map Reduce
-  
-  ### File Systems
-  
- File systems are needed to communicate the results from input to map, map to reduce, and from reduce back to the user. Generally done on the same machine to increase speed. 
-  
-  Google uses Google File System (GFS). Hadoop uses Hadoop Distributed File System (HDFS).
-  
-  Hadoop Resource Manager assigns tasks to servers (both map and reduce).
-  
-  Mappers write locally and remotely pass the information to the reducers.
-  
-  Mappers generally try to access data already on that server, if not then rack, and so on.
-    
+Takes out the middle man server and uses clients to search and recieve. Peers store their own files and communicate with one another. Peers store pointers to other peers (like neighbors).
+
+#### 5 Main Messages
+
+* Query (search)
+
+* QueryHit (response to query)
+
+* Ping (probe network for peers)
+
+* Pong (respond to ping with adress of another peer)
+
+* Push (initiates file transfer)
+
+#### Header
+
+[ descriptor ID : payload descriptor : decremented at each step (time to live, done when 0) : hops : payload length ] : payload
+
+Return messages are in the form of QueryHits. They contain the original descriptor ID so that they can be reverse routed. The requestor sends an HTTP get request to start the download. 
+
+Gnutella tries to set up an HTTP connection from sender to reciever. If it fails, it assumes there is a firewall on the recieving end. It then sets up a TCP push to be reverse routed through the network. The reciever can then download off that connection.
+
+Uses ping pong to continually refresh neighbor list.
