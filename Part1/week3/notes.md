@@ -33,3 +33,19 @@ Return messages are in the form of QueryHits. They contain the original descript
 Gnutella tries to set up an HTTP connection from sender to reciever. If it fails, it assumes there is a firewall on the recieving end. It then sets up a TCP push to be reverse routed through the network. The reciever can then download off that connection.
 
 Uses ping pong to continually refresh neighbor list.
+
+### FastTrack and BitTorrent
+
+FastTrack is proprietary, though we know some of the details. Similar to Gnutella, though there is a subset of nodes called supernodes. Peers are selected to be supernodes based on participation level. Nodes now search supernodes first. This reduces probability of having to continue the search.
+
+BitTorrent incentivizes files uploads. "Chokes" neighbors to limit the number of concurrent uploads.
+
+### Chord
+
+One of the first peer 2 peer systems to come out of academia. 
+
+#### Distributed Hash Table
+
+Stores objects at nodes or machines. Some concerns are load-balancing, fault tolerance, efficiency, and locality (want messages to be transmitted among nodes that are close by in terms of topology).
+
+
