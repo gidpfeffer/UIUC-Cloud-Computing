@@ -48,4 +48,11 @@ One of the first peer 2 peer systems to come out of academia.
 
 Stores objects at nodes or machines. Some concerns are load-balancing, fault tolerance, efficiency, and locality (want messages to be transmitted among nodes that are close by in terms of topology).
 
+#### Runtimes
+
+|          | Memory             | Lookup Latency | Number of Messages for Lookup |
+|----------|--------------------|----------------|-------------------------------|
+| Napster  | O(1) O(N) @ server | O(1)           | O(1)                          |
+| Gnutella | O(N)               | O(N)           | O(N)                          |
+| Chord    | O(log(N))          | O(log(N))      | O(log(N))                     |
 
