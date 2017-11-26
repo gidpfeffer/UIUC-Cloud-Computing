@@ -56,3 +56,24 @@ Stores objects at nodes or machines. Some concerns are load-balancing, fault tol
 | Gnutella | O(N)               | O(N)           | O(N)                          |
 | Chord    | O(log(N))          | O(log(N))      | O(log(N))                     |
 
+#### Neighbor Selection
+
+Uses consistent hashing to SHA-1 the ip adress and port. Make a clockwise pointer pattern using these sha's to the power of 2^m where m is some integer. Finger tables are used for each machine to keep track of the logarithmic pointers in the table.
+
+File locations are based on hashing the name of the files and figuring out the first node to the clockwise of the location.
+
+#### Handling Failures in Chord
+
+One solution, nodes maintain up to r successor entries instead of just one. With high probability of success, r needs to be 2 * log(N). In order to protect from when the peer storing the file fails, store duplicate files in other peers.
+
+#### Dealing with Dynamic Changes
+
+##### Churn 
+
+is defined as a a node joining, leaving, or failing inside the network within a specific period of time (an hour for example). Some services may have 100% churn in an hour.
+
+##### Joining
+
+A new peer joins by contacting a well known introducer through DNS. The introdcuer gives the requesting server a number which it will use to join the network and predecessor as well as sucessor nodes in the system. The joined server initializes its finger tables entries based on its sucessor's gfinger table. Over time, the server periodically talks to neighbors to update its own finger tables.
+
+If the rate of stabilization is fast enough, it can keep up with churn in the system.
