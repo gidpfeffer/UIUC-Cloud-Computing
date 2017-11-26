@@ -77,3 +77,25 @@ is defined as a a node joining, leaving, or failing inside the network within a 
 A new peer joins by contacting a well known introducer through DNS. The introdcuer gives the requesting server a number which it will use to join the network and predecessor as well as sucessor nodes in the system. The joined server initializes its finger tables entries based on its sucessor's gfinger table. Over time, the server periodically talks to neighbors to update its own finger tables.
 
 If the rate of stabilization is fast enough, it can keep up with churn in the system.
+
+A new entry affects O(logn) by symettry on average. Therefore, the number of messages per new peer join is on averag O(log n x log n)
+
+##### Leaving
+
+Leaving protocol is similar to failing. You also need a failure detector. Mechanisms for such have been previously discussed.
+
+##### Stabilization
+
+Updating of peers ensures non-looping lookups. Each stabilization round requires a constant number of messages. Strong stabilization takes O(n^2) rounds to ensure synchronized tables.
+
+### Pastry
+
+Similar to Chord, assigns id's to nodes based on consistent hashing. Neighbors are handled in a slightly different way. A left set is maintained by every node. This contains pointers to predecessors and successors. Routing tables are based on prefix matching. Prefixes are in binary. 
+
+Uses a stabilization protocol with the same objective as Chord.
+
+### Kelips
+
+Brings constant lookup cost to a distributed hash cluster. Uses k "affinity groups" where k ~ (N)^0.5. There are virtual groups. Each node is hashed to a group. A peer knows about all other peers in its affinity group. Each node also maintains a pointer to one node in the k - 1 other affintity groups. Files get stored at the node for the user that uploaded them. The servers amintain metadata from the uploads. Nodes in the same affinity group maintain metadata for all other uploads in its affinity group.
+
+Gossip based protocol is used to update membership lists. The time to disseminate information is O(log n). Meta information is also updated using gossip style heartbeats from the source.
