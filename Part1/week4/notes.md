@@ -26,7 +26,33 @@ Writes to files when memory capacity is met. Writes base don sorted string. Also
 
 ### X-Cap Theorem
 
-### The COnsistency Spectrum
+In a distributed system, there are 3 topics considered to be very important.
+
+1. **Consistency**: All nodes see the same data at the same time and reads see most recently written data.
+2. **Availability**: The system allows operations all the time and the operations return quicky.
+3. **Parition-tolerance**: The system continues to work in spite of network partitions.
+
+The theorem states that you can satisfy at most, 2 of theabove properties. Never all three. Partition tolerance is very important, so we generally denote that we have to choose between consistency and availability.
+
+Cassandra prefers availability over consistency. Traditional relational database models generally choose consistency over availability.
+
+Relational databases provide **ACID**
+
+**A**tomicity
+**C**onsistency
+**I**solation
+**D**urability
+
+Key value stores like Cassandra provide **BASE**
+
+**B**asically
+**A**vailable
+**S**oft-state
+**E**ventual
+
+The value of X is known as the consistency level in Cassandra. Consistency levels incluse any (any server can write, may not be a replica), one (at least one replica), all (all replicas), quorum (quorum across all replicas in all datacenters). 
+
+### The Consistency Spectrum
 
 ### HBase
 
