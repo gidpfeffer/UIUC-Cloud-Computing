@@ -54,7 +54,33 @@ The value of X is known as the consistency level in Cassandra. Consistency level
 
 ### The Consistency Spectrum
 
+Cassandra supports eventual consistency. This means that if all reads and writes stopped, the values woudle eventually converge.
+
+**Per key sequential**: ensures that per key, all operations have a global order. 
+
+**CRDTs (Commutative data type)**: data structure for which commutative writes give the same result. For example, an incrementor is not order specific.
+
+**Red-blue consistency**: rewrites ops into red and blue ops. Blue are communtative. Red are order specific.
+
+**Causal Consistency**: Reads respect partial order based on information flow.
+
+#### Strong COnsistency Models
+
+**Linearizability**: Each operation by a client is instantaneously available to all other clients. Very difficult to support in computing clusters.
+
+**Sequential Consistency**: Finds a reasonable ordering which obeys consistency across all clients.
+
+The stronger the consistency, the slower the reads and writes.
+
 ### HBase
+
+Google's big table was the first "blob based" storage system. They released a paper on this and Yahoo released the first open source implementation of this called HBase.
+
+Supports get, put, multiput, and scan in a particular range. Unlike Cassandra, prefers availability over consistency under partitions.
+
+Split into multiple regions, replicated across servers. Column families are a subset of columns with similar query patterns. There is one store per combination of store + region. Each store contains a memstore. The memstore maintains an in memory version of the latest updates. When the memstore is full, it is flushed to disk. There are store files for each store which is where the data lives on disk.
+
+A slave master protocol is used to produce replicas. A zookeeper is used like a file system to store control information.
 
 ## Time and Ordering
 
