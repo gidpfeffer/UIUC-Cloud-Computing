@@ -84,10 +84,38 @@ A slave master protocol is used to produce replicas. A zookeeper is used like a 
 
 ## Time and Ordering
 
+Asynchronous distributed system models assumes that computers are using different system clocks, the message delays are unpredictable, and the time to process a message is unpredicatble.
+
+Clock skew refers to the difference in the current time of the process clocks.
+
+Clock drift refers to the relative difference in clock movement speed.
+
+Internal Sychronization synchronizes in a cluster.
+
+External synchronizes with respect to an external time source. External implis internal to an extent, but not the other way around.
+
 ### Cristian's Algorithm
+
+min1 indicates the min time to send from machine 1 to machine 2. min2 is the opposite. We send a request for the time from machine 1 to machine 2, keepting track of the round trip time (RTT).
+
+The actual time when machine 1 recieves the message is bounded by [t + min2, t + RTT - min1].
+
+Cristian's algorithm sets its clock to be 
+
+clock = t + (min2 + RTT - min1)/2
+
+Error is bounded by 
+
+(RTT - min1 - min2)/2
 
 ### NTP
 
+
+
 ### Lamport Timestamps
 
+
+
 ### Vector Clocks
+
+
