@@ -156,3 +156,5 @@ Vi[i] gets incremented whenever a task is perfomed on machine i.
 Vi[j] get set to the max(incoming message Vi[j], local Vi[j]) for all incoming messages.
 
 Note, recieving a message is a performed task (local counter is incremented).
+
+Where as concurrent events could not be identified using Lamport timestamps, they can be using vector clocks. See slides for formulas used to determine causality and concurrency.
