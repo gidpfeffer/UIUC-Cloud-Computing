@@ -110,11 +110,41 @@ Error is bounded by
 
 ### NTP
 
+Servers are organized in a tree
 
+  Primary Server
+  |          |
+Secondary Servers
+  |          |
+ Tertiary Server
+ 
+Child sends protocol to parent requesting time. Two time sent and time recieved values are then derived from 2 messages. They are then used to update the clocks. The error is bounded by half of the round trip time.
 
 ### Lamport Timestamps
 
+One of the most important building blocks in distributed systems. Assigning timestamps to events need to ensure causality. Caulsality means that if an event A happend before event B, the timestamp associated with A is earlier than the timestamp associated with B. IN other words, one event leads to another (there is a path from one event to another event).
 
+Logical or Lamport ordering define s a logical Happens-Before ordering among pairs of events. There are three rules that are used to determine whether or not two events are related by the Happens Before relation:
+
+1. On the same process, a -> if time(a) < time(b) (using local clock)
+2. If p1 sends m to p2: send(m) < recieve(m)
+3. Transitivity: if a < b and b < c then a < c (creates a partial ordering among events)
+
+#### Assigning Timestamps
+
+Each process uses a local counter (clock) which is an integer. Value starts at 0
+
+A process increments its counter when a send or instruction happens at it. The counter is assigned to the event at its timestamp.
+
+A send event carries its timestamp.
+
+For a recieve action, the counter is updated by max(local clock, message timestamp) + 1.
+
+Events with no causal path are knows as **concurrent events**.
+
+if e1 -> e2 then time(e1) < time(e2)
+
+if time(e1) < time(e2) either e1 -> e2 or they are concurrent process.
 
 ### Vector Clocks
 
