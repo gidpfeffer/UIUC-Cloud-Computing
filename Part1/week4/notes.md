@@ -148,4 +148,11 @@ if time(e1) < time(e2) either e1 -> e2 or they are concurrent process.
 
 ### Vector Clocks
 
+Vector clocks work silimar to lamport clocks except a vector of clocks for every process is kept.
 
+Using Vi to denote the vector clock on the ith machine.
+
+Vi[i] gets incremented whenever a task is perfomed on machine i.
+Vi[j] get set to the max(incoming message Vi[j], local Vi[j]) for all incoming messages.
+
+Note, recieving a message is a performed task (local counter is incremented).
