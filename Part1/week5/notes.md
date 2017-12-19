@@ -24,6 +24,22 @@ When a process recieves a marker, and this is the first marker that the node is 
 
 Algorithm is causally correct.
 
+### Consistent Cuts
+
+A cut is a time frontier at each process and and each channel. 
+
+Consistent cuts is a cut that obeys causality. This means that if f is in the cut and and e happens before f, the e is also in the cut. The Chandy Lamport algorithm always creastes consistent cuts.
+
+### Safety and Liveness
+
+Safety: A guarentee that something bad will never happen. For example a peace treaty has the disired property that war will not be waged between them.
+
+Liveness: A guarantee that something good will happen eventually. No bounds are specified though. For example, the termination of a process may be a liveness property.
+
+It is very hard to guarantee both properties. 
+
+All stable properties can be detected using the Chandy Lamport algorithm. A property is stable if its value doesn't change after being defined.
+
 ## Multicast
 
 ## Paxos
