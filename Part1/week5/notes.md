@@ -42,4 +42,16 @@ All stable properties can be detected using the Chandy Lamport algorithm. A prop
 
 ## Multicast
 
+Multicast is a message that needs to be sent out to a selected group of processes. A broadcast is a message sent to all processes. A unicast is a message sent from one sender to one reciever. 
+
+### Ordering
+
+You want all multicasts to be recieved in causal ordering between nodes.
+
+FIFO: makes sure that messages from certain nodes are recieved in order, but can reviece messages form different nodes in varying order.
+
+Causal: In this ordering, multicasts with messages that are causally related must be recieved in the same causality obeying order at all the recievers. Concurrent messages can be recieved in varying orders. Causal implies that FIFO is satisfied. FIFO does not imply causality.
+
+Total Ordering (Atmoic Broadcast): Guarentees that all recievers recieve the messages in the same order (doesn't worry about the order in which they were sent).
+
 ## Paxos
