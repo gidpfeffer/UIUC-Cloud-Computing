@@ -54,4 +54,18 @@ Causal: In this ordering, multicasts with messages that are causally related mus
 
 Total Ordering (Atmoic Broadcast): Guarentees that all recievers recieve the messages in the same order (doesn't worry about the order in which they were sent).
 
+### Implementation
+
+FIFO is implemented using a vector of process ID's. Packages are acceted when they correspond to the next expecting package and the counter is incremented in the vector.
+
+Total Ordering is achieved by having a leader node elected which maintains a sequence list. All other nodes follow the ordering of the sequencer. 
+
+Caausal is similar to FIFO except the entire pocess ID vector is sent out with the message. This vector is then chacked to make sure that causality is achieved.
+
+### Virtual Synchrony
+
+Combines a membership protocol with a multicast protocol to add failure detection.
+
+The mebership list is called the view. An update to the membership list is called a view change.
+
 ## Paxos
