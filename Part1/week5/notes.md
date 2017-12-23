@@ -69,3 +69,11 @@ Combines a membership protocol with a multicast protocol to add failure detectio
 The mebership list is called the view. An update to the membership list is called a view change.
 
 ## Paxos
+
+### Consensus Problem
+
+Deals with having servers coordinating with one another and agreeing on some decision. Ex: Leader election, multicast, failure detection, mutual exclusion.
+
+More formally the problem is defined as having a cluster of computers with input 0 or 1 and output 0 or 1. All processes must output the same value (and they cannot change their decision after defining it) as a group decision.
+
+Consensus is impossible to solve in asynchronous systems (no bounds on execution times can be assumed).
