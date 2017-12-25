@@ -109,6 +109,9 @@ int MP1Node::initThisNode(Address *joinaddr) {
 	memberNode->timeOutCounter = -1;
     initMemberListTable(memberNode);
 
+    // Added by student to add node to its own memberlist
+    addToMemberListTable(memberNode, id, port, memberNode->heartbeat, memberNode->pingCounter);
+
     return 0;
 }
 
@@ -163,6 +166,7 @@ int MP1Node::finishUpThisNode(){
    /*
     * Your code goes here
     */
+
 }
 
 /**
@@ -218,6 +222,32 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 	/*
 	 * Your code goes here
 	 */
+    MessageHdr *msg = (MessageHdr *) data;
+    if (msg->msgType == JOINREQ) {
+        Address *joiningAddr = (Address *) malloc(sizeof(Address));
+        memcpy(&joiningAddr->addr, ((char *)msg) + sizeof(MessageHdr), sizeof(joiningAddr->addr));
+
+        printf("Received JOINREQ from: ");
+        printAddress(joiningAddr);
+
+        // making joinrep header
+        MessageHdr *response;
+        size_t msgsize = sizeof(MessageHdr);
+        response = (MessageHdr *) malloc(msgsize * sizeof(char));
+
+        // create JOINREQ message: format of data is {struct Address myaddr}
+        response->msgType = JOINREP;
+
+        emulNet->ENsend(&memberNode->addr, joiningAddr, (char *)response, msgsize);
+        free(msg);
+    }
+    else if (msg->msgType == JOINREP) {
+        printf("Introduced: ");
+        printAddress(&memberNode->addr);
+        memberNode->inGroup = true;
+    }
+
+
 }
 
 /**
@@ -232,6 +262,10 @@ void MP1Node::nodeLoopOps() {
 	/*
 	 * Your code goes here
 	 */
+
+    //memberNode->pingCounter = memberNode->pingCounter + 1;
+    memberNode->heartbeat = memberNode->heartbeat + 1;
+    updateMemberListTable(&memberNode->addr, memberNode->heartbeat);
 
     return;
 }
@@ -270,6 +304,21 @@ void MP1Node::initMemberListTable(Member *memberNode) {
 }
 
 /**
+ * Added by steudent
+ *
+ * DESCRIPTION: Used to add a memberListEntry to table
+ */
+void MP1Node::addToMemberListTable(Member *memberNode, int id, short port, long heartbeat, long timestamp) 
+{
+    if(!memberListContainsAddress(memberNode, id, port))
+    {
+        MemberListEntry newMember(id, port, heartbeat, timestamp);
+        memberNode->memberList.push_back(newMember);
+        printf("%lu", memberNode->memberList.size());
+    }
+}
+
+/**
  * FUNCTION NAME: printAddress
  *
  * DESCRIPTION: Print the Address
@@ -278,4 +327,56 @@ void MP1Node::printAddress(Address *addr)
 {
     printf("%d.%d.%d.%d:%d \n",  addr->addr[0],addr->addr[1],addr->addr[2],
                                                        addr->addr[3], *(short*)&addr->addr[4]) ;    
+}
+
+/**
+ * THIS WAS ADDED BY STUDENT
+ *
+ * DESCRIPTION: Used to update memberlistTable when PINGS come in
+ */
+void MP1Node::updateMemberListTable(Address *addr, long heartbeat)
+{
+    int id = 0;
+    short port;
+    memcpy(&id, &addr[0], sizeof(int));
+    memcpy(&port, &addr[4], sizeof(short));
+    printf("update was called for %d %d \n", id, port);
+
+    if(!memberListContainsAddress(memberNode, id, port))
+    {
+        addToMemberListTable(memberNode, id, port, heartbeat, memberNode->pingCounter);
+        printf("COULD NOT FIND ");
+        printAddress(&memberNode->addr);
+    }
+    else
+    {
+        for(std::size_t i = 0; i != memberNode->memberList.size(); i++)
+        {
+            if(memberNode->memberList[i].id == id && memberNode->memberList[i].port == port)
+            {
+                memberNode->memberList[i].heartbeat = heartbeat;
+                memberNode->memberList[i].timestamp = memberNode->pingCounter;
+                printf("HERE CHECKING ");
+                printAddress(addr);
+            }
+        }
+    }
+}
+
+/**
+ * THIS WAS ADDED BY STUDENT
+ *
+ * DESCRIPTION: Used to check for memberListTable when PINGS come in
+ */
+bool MP1Node::memberListContainsAddress(Member *memberNode, int id, short port)
+{
+    for(std::size_t i = 0; i != memberNode->memberList.size(); i++)
+    {
+        //printf("%d %d %d %d \n", memberNode->memberList[i].id, memberNode->memberList[i].port, id, port);
+        if(memberNode->memberList[i].id == id && memberNode->memberList[i].port == port)
+        {
+            return true;
+        }
+    }
+    return false;
 }

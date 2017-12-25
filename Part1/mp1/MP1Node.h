@@ -31,7 +31,7 @@
 enum MsgTypes{
     JOINREQ,
     JOINREP,
-    DUMMYLASTMSGTYPE
+    PING
 };
 
 /**
@@ -42,6 +42,13 @@ enum MsgTypes{
 typedef struct MessageHdr {
 	enum MsgTypes msgType;
 }MessageHdr;
+
+
+/**
+ * Used for pinging
+ *
+ */
+
 
 /**
  * CLASS NAME: MP1Node
@@ -75,6 +82,9 @@ public:
 	Address getJoinAddress();
 	void initMemberListTable(Member *memberNode);
 	void printAddress(Address *addr);
+	void updateMemberListTable(Address *pingAddr, long heartbeat);
+	void addToMemberListTable(Member *memberNode, int id, short port, long heartbeat, long timestamp);
+	bool memberListContainsAddress(Member *memberNode, int id, short port);
 	virtual ~MP1Node();
 };
 
