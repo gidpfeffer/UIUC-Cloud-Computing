@@ -65,7 +65,7 @@ private:
 	char NULLADDR[6];
 	void recJoinReq(MessageHdr *msg);
 	void recJoinRep(MessageHdr *msg);
-	bool put(Address *addr, long heartbeat);
+	bool put(int id, short port, long heartbeat);
 
 public:
 	MP1Node(Member *, Params *, EmulNet *, Log *, Address *);

@@ -303,50 +303,31 @@ void MP1Node::printAddress(Address *addr)
 
 void MP1Node::recJoinReq(MessageHdr *msg)
 {
-    Address *joinaddr = (Address *) malloc(sizeof(Address));
-    memcpy(&joinaddr->addr, ((char *)msg) + sizeof(MessageHdr), sizeof(joinaddr->addr));
+    Address joinaddr;
+    memcpy(&joinaddr.addr, (char *)(msg + 1), sizeof(joinaddr.addr));
+
+    printf("recieved join req from ");
+    printAddress(&joinaddr);
+
     long heartbeat;
-    memcpy(&heartbeat, ((char *)msg) + sizeof(MessageHdr) + sizeof(memberNode->addr.addr) + 1, sizeof(long));
+    memcpy(&heartbeat, (char *)(msg+1) + 1 + sizeof(memberNode->addr.addr), sizeof(long));
 
-    printf("A join request was recieved with heartbeat %lu from ", heartbeat);
-    printAddress(joinaddr);
+    int id = *(int*)(&joinaddr.addr);
+    short port = *(short*)(&joinaddr.addr[4]);
 
-    put(joinaddr, heartbeat);
-
-    MessageHdr *response;
-    size_t msgsize = sizeof(MessageHdr) + sizeof(joinaddr->addr) + sizeof(long) + 1;
-    response = (MessageHdr *) malloc(msgsize * sizeof(char));
-
-    response->msgType = JOINREP;
-    memcpy((char *)(response+sizeof(MessageHdr)), &memberNode->addr.addr, sizeof(memberNode->addr.addr));
-    memcpy((char *)(response+sizeof(MessageHdr)) + 1 + sizeof(memberNode->addr.addr), &memberNode->heartbeat, sizeof(long));
-    emulNet->ENsend(&memberNode->addr, joinaddr, (char *)response, msgsize);
-    
-    free(response);
-    free(joinaddr);
+    put(id, port, heartbeat);
 }
 
 void MP1Node::recJoinRep(MessageHdr *msg)
 {
-    Address *initiator = (Address *) malloc(sizeof(Address));
-    memcpy(&initiator->addr, ((char *)msg) + sizeof(MessageHdr), sizeof(initiator->addr));
-    long heartbeat;
-    memcpy(&heartbeat, ((char *)msg) + sizeof(MessageHdr) + sizeof(memberNode->addr.addr) + 1, sizeof(long));
 
-    put(initiator, heartbeat);
-
-    printf("Introduced: ");
-    printAddress(&memberNode->addr);
-    memberNode->inGroup = true;
-
-    free(initiator);
 }
 
-bool MP1Node::put(Address *addr, long heartbeat)
+bool MP1Node::put(int id, short port, long heartbeat)
 {
-    int id = *(int*)(&addr);
-    short port = *(short*)(&addr[4]);
     long timestamp = memberNode->heartbeat;
+
+    printf("id: %d, port: %hd \n", id, port);
 
     for(std::vector<MemberListEntry>::iterator it = memberNode->memberList.begin(); it != memberNode->memberList.end(); ++it) {
         if(it->id == id && it->port == port){
