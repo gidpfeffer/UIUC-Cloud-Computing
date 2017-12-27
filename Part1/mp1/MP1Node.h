@@ -31,7 +31,8 @@
 enum MsgTypes{
     JOINREQ,
     JOINREP,
-    PING
+    LISTREQ,
+    LISTREP
 };
 
 /**
@@ -62,6 +63,9 @@ private:
 	Params *par;
 	Member *memberNode;
 	char NULLADDR[6];
+	void recJoinReq(MessageHdr *msg);
+	void recJoinRep(MessageHdr *msg);
+	bool put(Address *addr, long heartbeat);
 
 public:
 	MP1Node(Member *, Params *, EmulNet *, Log *, Address *);
@@ -82,9 +86,6 @@ public:
 	Address getJoinAddress();
 	void initMemberListTable(Member *memberNode);
 	void printAddress(Address *addr);
-	void updateMemberListTable(Address *pingAddr, long heartbeat);
-	void addToMemberListTable(Member *memberNode, int id, short port, long heartbeat, long timestamp);
-	bool memberListContainsAddress(Member *memberNode, int id, short port);
 	virtual ~MP1Node();
 };
 
