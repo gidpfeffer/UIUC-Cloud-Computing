@@ -96,9 +96,6 @@ int MP1Node::initThisNode(Address *joinaddr) {
 	/*
 	 * This function is partially implemented and may require changes
 	 */
-	int id = *(int*)(&memberNode->addr.addr);
-	short port = *(short*)(&memberNode->addr.addr[4]);
-
 	memberNode->bFailed = false;
 	memberNode->inited = true;
 	memberNode->inGroup = false;
@@ -163,7 +160,7 @@ int MP1Node::finishUpThisNode(){
    /*
     * Your code goes here
     */
-
+    return 0;
 }
 
 /**
@@ -226,8 +223,13 @@ bool MP1Node::recvCallBack(void *env, char *data, int size) {
     else if (msg->msgType == JOINREP) {
         recJoinRep(msg);
     }
-
-
+    else if (msg->msgType == LISTREQ){
+        recListReq(msg);
+    }
+    else if (msg->msgType == LISTREP){
+        recListRep(msg, size);
+    }
+    return 0;
 }
 
 /**
@@ -243,8 +245,11 @@ void MP1Node::nodeLoopOps() {
 	 * Your code goes here
 	 */
     memberNode->heartbeat++;
-    memberNode->myPos->heartbeat = memberNode->heartbeat;
-    memberNode->myPos->timestamp = memberNode->myPos->heartbeat;
+    std::vector<MemberListEntry>::iterator myEntry = memberNode->memberList.begin();
+    myEntry->heartbeat = memberNode->heartbeat;
+    myEntry->timestamp = myEntry->heartbeat;
+
+    requestMembership();
 
     return;
 }
@@ -303,6 +308,7 @@ void MP1Node::printAddress(Address *addr)
 
 void MP1Node::recJoinReq(MessageHdr *msg)
 {
+    //Adding new member to initiator list
     Address joinaddr;
     memcpy(&joinaddr.addr, (char *)(msg + 1), sizeof(joinaddr.addr));
 
@@ -316,23 +322,49 @@ void MP1Node::recJoinReq(MessageHdr *msg)
     short port = *(short*)(&joinaddr.addr[4]);
 
     put(id, port, heartbeat);
+
+    // responding with initiator address and heartbeat
+    MessageHdr *rep;
+    size_t msgsize = sizeof(MessageHdr) + sizeof(joinaddr.addr) + sizeof(long) + 1;
+    rep = (MessageHdr *) malloc(msgsize * sizeof(char));
+
+    rep->msgType = JOINREP;
+    memcpy((char *)(rep+1), &memberNode->addr.addr, sizeof(memberNode->addr.addr));
+    memcpy((char *)(rep+1) + 1 + sizeof(memberNode->addr.addr), &memberNode->heartbeat, sizeof(long));
+
+    emulNet->ENsend(&memberNode->addr, &joinaddr, (char *)rep, msgsize);
+    free(rep);
 }
 
 void MP1Node::recJoinRep(MessageHdr *msg)
 {
+    Address joinaddr;
+    memcpy(&joinaddr.addr, (char *)(msg + 1), sizeof(joinaddr.addr));
 
+    long heartbeat;
+    memcpy(&heartbeat, (char *)(msg+1) + 1 + sizeof(memberNode->addr.addr), sizeof(long));
+
+    int id = *(int*)(&joinaddr.addr);
+    short port = *(short*)(&joinaddr.addr[4]);
+
+    put(id, port, heartbeat);
+
+    memberNode->inGroup = true;
 }
 
 bool MP1Node::put(int id, short port, long heartbeat)
 {
     long timestamp = memberNode->heartbeat;
 
-    printf("id: %d, port: %hd \n", id, port);
+    printf("put id: %d, port: %hd at ", id, port);
+    printAddress(&memberNode->addr);
 
     for(std::vector<MemberListEntry>::iterator it = memberNode->memberList.begin(); it != memberNode->memberList.end(); ++it) {
         if(it->id == id && it->port == port){
-            it->heartbeat = heartbeat;
-            it->timestamp = timestamp;
+            if(heartbeat > it->heartbeat){
+                it->heartbeat = heartbeat;
+                it->timestamp = timestamp;
+            }
             return true;
         }
     }
@@ -340,4 +372,96 @@ bool MP1Node::put(int id, short port, long heartbeat)
     MemberListEntry memberEntry(id, port, heartbeat, timestamp);
     memberNode->memberList.push_back(memberEntry);
     return false;
+}
+
+void MP1Node::requestMembership()
+{
+    int neighbors = memberNode->memberList.size();
+    if (neighbors == 2) {
+        sendMemReq(&memberNode->memberList[1]);
+    }
+    else {
+        int first = rand() % (neighbors - 1) + 1;
+        int second = rand() % (neighbors - 2) + 1;
+        if(first == second) first = neighbors - 1;
+        sendMemReq(&memberNode->memberList[first]);
+        sendMemReq(&memberNode->memberList[second]);
+    }
+}
+
+void MP1Node::sendMemReq(MemberListEntry *entry)
+{
+    Address addr;
+    memcpy(&addr.addr, &entry->id, sizeof(int));
+    memcpy(&addr.addr[4], &entry->port, sizeof(short));
+
+    MessageHdr *rep;
+    size_t msgsize = sizeof(MessageHdr) + sizeof(memberNode->addr.addr) + sizeof(long) + 1;
+    rep = (MessageHdr *) malloc(msgsize * sizeof(char));
+
+    rep->msgType = LISTREQ;
+    memcpy((char *)(rep+1), &memberNode->addr.addr, sizeof(memberNode->addr.addr));
+    memcpy((char *)(rep+1) + 1 + sizeof(memberNode->addr.addr), &memberNode->heartbeat, sizeof(long));
+
+    emulNet->ENsend(&memberNode->addr, &addr, (char *)rep, msgsize);
+    free(rep);
+}
+
+void MP1Node::recListReq(MessageHdr *msg)
+{
+    Address reqaddr;
+    memcpy(&reqaddr.addr, (char *)(msg + 1), sizeof(reqaddr.addr));
+
+    long heartbeat;
+    memcpy(&heartbeat, (char *)(msg+1) + 1 + sizeof(memberNode->addr.addr), sizeof(long));
+
+    sendList(&reqaddr);
+}
+
+void MP1Node::sendList(Address *reqaddr)
+{
+    MessageHdr *rep;
+    size_t msgsize = sizeof(reqaddr->addr) + sizeof(long) + 1;
+    size_t size = msgsize * memberNode->memberList.size() + sizeof(MessageHdr);
+    rep = (MessageHdr *) malloc(size * sizeof(char));
+
+    rep->msgType = LISTREP;
+
+    char *data = (char *)(rep+1);
+
+    for(std::vector<MemberListEntry>::iterator it = memberNode->memberList.begin(); it != memberNode->memberList.end(); ++it) {
+        Address addr;
+        memcpy(&addr.addr, &it->id, sizeof(int));
+        memcpy(&addr.addr[4], &it->port, sizeof(short));
+
+        memcpy(data, &addr.addr, sizeof(addr.addr));
+        memcpy((char *)data + 1 + sizeof(addr.addr), &it->heartbeat, sizeof(long));
+        data += 1 + sizeof(addr.addr) + sizeof(long);
+    }
+
+    emulNet->ENsend(&memberNode->addr, reqaddr, (char *)rep, size);
+    free(rep);
+}
+
+void MP1Node::recListRep(MessageHdr *msg, int size)
+{
+    size_t msgsize = sizeof(memberNode->addr.addr) + sizeof(long) + 1;
+    int entries = (size - sizeof(MessageHdr)) / msgsize;
+    char *data = (char *) msg;
+    data = (char *)(msg+1);
+    
+    for(int i = 0; i < entries; i++){
+        Address joinaddr;
+        memcpy(&joinaddr.addr, data, sizeof(joinaddr.addr));
+
+        long heartbeat;
+        memcpy(&heartbeat, data + 1 + sizeof(memberNode->addr.addr), sizeof(long));
+
+        int id = *(int*)(&joinaddr.addr);
+        short port = *(short*)(&joinaddr.addr[4]);
+
+        put(id, port, heartbeat);
+
+        data += 1 + sizeof(memberNode->addr.addr) + sizeof(long);
+    }
 }

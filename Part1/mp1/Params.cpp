@@ -18,7 +18,7 @@ Params::Params(): PORTNUM(8001) {}
  */
 void Params::setparams(char *config_file) {
 	FILE *fp = fopen(config_file,"r");
-
+    
 	fscanf(fp,"MAX_NNB: %d", &MAX_NNB);
 	fscanf(fp,"\nSINGLE_FAILURE: %d", &SINGLE_FAILURE);
 	fscanf(fp,"\nDROP_MSG: %d", &DROP_MSG);
