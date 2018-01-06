@@ -71,6 +71,8 @@ private:
 	void sendMemReq(MemberListEntry *entry);
 	void sendList(Address *reqaddr);
 	void recListRep(MessageHdr *msg, int size);
+	void updateList();
+	bool fail(MemberListEntry x);
 
 public:
 	MP1Node(Member *, Params *, EmulNet *, Log *, Address *);

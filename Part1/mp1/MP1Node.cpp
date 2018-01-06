@@ -249,7 +249,12 @@ void MP1Node::nodeLoopOps() {
     myEntry->heartbeat = memberNode->heartbeat;
     myEntry->timestamp = myEntry->heartbeat;
 
+    updateList();
+
     requestMembership();
+    
+    printf("%lu members at ", memberNode->memberList.size());
+    printAddress(&memberNode->addr);
 
     return;
 }
@@ -356,9 +361,6 @@ bool MP1Node::put(int id, short port, long heartbeat)
 {
     long timestamp = memberNode->heartbeat;
 
-    printf("put id: %d, port: %hd at ", id, port);
-    printAddress(&memberNode->addr);
-
     for(std::vector<MemberListEntry>::iterator it = memberNode->memberList.begin(); it != memberNode->memberList.end(); ++it) {
         if(it->id == id && it->port == port){
             if(heartbeat > it->heartbeat){
@@ -429,9 +431,17 @@ void MP1Node::sendList(Address *reqaddr)
 
     char *data = (char *)(rep+1);
 
+    long timestamp = memberNode->heartbeat;
+
     for(std::vector<MemberListEntry>::iterator it = memberNode->memberList.begin(); it != memberNode->memberList.end(); ++it) {
         Address addr;
-        memcpy(&addr.addr, &it->id, sizeof(int));
+        if(timestamp - it->timestamp > TFAIL){
+            int val = -1;
+            memcpy(&addr.addr, &val, sizeof(int));
+        }
+        else{
+            memcpy(&addr.addr, &it->id, sizeof(int));
+        }
         memcpy(&addr.addr[4], &it->port, sizeof(short));
 
         memcpy(data, &addr.addr, sizeof(addr.addr));
@@ -449,7 +459,7 @@ void MP1Node::recListRep(MessageHdr *msg, int size)
     int entries = (size - sizeof(MessageHdr)) / msgsize;
     char *data = (char *) msg;
     data = (char *)(msg+1);
-    
+
     for(int i = 0; i < entries; i++){
         Address joinaddr;
         memcpy(&joinaddr.addr, data, sizeof(joinaddr.addr));
@@ -460,8 +470,28 @@ void MP1Node::recListRep(MessageHdr *msg, int size)
         int id = *(int*)(&joinaddr.addr);
         short port = *(short*)(&joinaddr.addr[4]);
 
-        put(id, port, heartbeat);
+        if(id != -1){
+            put(id, port, heartbeat);
+        }
 
         data += 1 + sizeof(memberNode->addr.addr) + sizeof(long);
+    }
+}
+
+bool MP1Node::fail(MemberListEntry x)
+{
+    return memberNode->heartbeat - x.timestamp > TREMOVE;
+}
+
+void MP1Node::updateList()
+{
+    std::vector<MemberListEntry>::iterator it = memberNode->memberList.begin();
+    while (it != memberNode->memberList.end()) {
+        if (fail(*it)) {
+            it = memberNode->memberList.erase(it);
+        }
+        else {
+            ++it;
+        }
     }
 }
