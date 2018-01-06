@@ -110,13 +110,14 @@
  9.0.0.0:0 [6] Node 7.0.0.0:0 joined at time 6
  9.0.0.0:0 [6] Node 8.0.0.0:0 joined at time 6
  9.0.0.0:0 [6] Node 10.0.0.0:0 joined at time 6
- 1.0.0.0:0 [100] Node failed at time=100
- 5.0.0.0:0 [121] Node 1.0.0.0:0 removed at time 121
- 10.0.0.0:0 [124] Node 1.0.0.0:0 removed at time 124
- 6.0.0.0:0 [124] Node 1.0.0.0:0 removed at time 124
- 2.0.0.0:0 [124] Node 1.0.0.0:0 removed at time 124
- 7.0.0.0:0 [125] Node 1.0.0.0:0 removed at time 125
- 8.0.0.0:0 [126] Node 1.0.0.0:0 removed at time 126
- 3.0.0.0:0 [126] Node 1.0.0.0:0 removed at time 126
- 9.0.0.0:0 [127] Node 1.0.0.0:0 removed at time 127
- 4.0.0.0:0 [127] Node 1.0.0.0:0 removed at time 127
+ 5.0.0.0:0 [100] Node failed at time=100
+ 6.0.0.0:0 [121] Node 5.0.0.0:0 removed at time 121
+ 7.0.0.0:0 [122] Node 5.0.0.0:0 removed at time 122
+ 2.0.0.0:0 [122] Node 5.0.0.0:0 removed at time 122
+ 10.0.0.0:0 [123] Node 5.0.0.0:0 removed at time 123
+ 9.0.0.0:0 [123] Node 5.0.0.0:0 removed at time 123
+ 1.0.0.0:0 [123] Node 5.0.0.0:0 removed at time 123
+ 4.0.0.0:0 [124] Node 5.0.0.0:0 removed at time 124
+ 3.0.0.0:0 [124] Node 5.0.0.0:0 removed at time 124
+ 8.0.0.0:0 [125] Node 5.0.0.0:0 removed at time 125
+ 1.0.0.0:0 [500] @@time=500

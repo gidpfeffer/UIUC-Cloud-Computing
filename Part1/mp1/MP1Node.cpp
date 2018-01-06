@@ -248,6 +248,7 @@ void MP1Node::nodeLoopOps() {
     std::vector<MemberListEntry>::iterator myEntry = memberNode->memberList.begin();
     myEntry->heartbeat = memberNode->heartbeat;
     myEntry->timestamp = myEntry->heartbeat;
+    memberNode->myPos = myEntry;
 
     updateList();
 
