@@ -371,6 +371,13 @@ bool MP1Node::put(int id, short port, long heartbeat)
         }
     }
 
+#ifdef DEBUGLOG
+    Address joinaddr;
+    memcpy(&joinaddr.addr[0], &id, sizeof(int));
+    memcpy(&joinaddr.addr[4], &port, sizeof(short));
+    log->logNodeAdd(&memberNode->addr, &joinaddr);
+#endif
+
     MemberListEntry memberEntry(id, port, heartbeat, timestamp);
     memberNode->memberList.push_back(memberEntry);
     return false;
@@ -488,6 +495,14 @@ void MP1Node::updateList()
     std::vector<MemberListEntry>::iterator it = memberNode->memberList.begin();
     while (it != memberNode->memberList.end()) {
         if (fail(*it)) {
+
+#ifdef DEBUGLOG
+            Address leaveaddr;
+            memcpy(&leaveaddr.addr[0], &it->id, sizeof(int));
+            memcpy(&leaveaddr.addr[4], &it->port, sizeof(short));
+            log->logNodeRemove(&memberNode->addr, &leaveaddr);
+#endif
+
             it = memberNode->memberList.erase(it);
         }
         else {
