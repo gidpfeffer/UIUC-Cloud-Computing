@@ -252,9 +252,6 @@ void MP1Node::nodeLoopOps() {
     updateList();
 
     requestMembership();
-    
-    printf("%lu members at ", memberNode->memberList.size());
-    printAddress(&memberNode->addr);
 
     return;
 }
