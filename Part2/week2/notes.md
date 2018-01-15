@@ -60,8 +60,33 @@ Combatting deadlocks:
 
 ### Optimimstic Concurrency Control
 
+It is preferrable to use optimistic control when conflicts are expected to be rare. Increases operations per second and decreases latency.
+
+One simple implementation is to check for serial equivalence when the commit is sent. If serial equivalence is not obtained, rollback the updates. This can cause cascading rollbacks if other updates were dependent on the rolled back updates.
+
+Second Approach - Timestamp Ordering: assign each transaction an id which will be used to determine its position in serialization ordering. Ensure that for a transaction both are true:
+
+1. T writes to O if and only if transations that had read or written O had lower id that T.
+2. T's read to object O is allowed only if O was last written by a transaction with a lower id than T.
+
+If rule is violated, abort.
+
+Third Approach - Multi-Version Concurrency Control: Both a tentative and a commited version are maintained. Each tentative version has a timestamp. ON a read or write, find the "right" timestamp based on timestamps.
+
 ## Replication Control
 
 ### Replication
+
+Replication control deals with having multiple servers, where objects are stored accross multiple machines.
+
+Replication is important for fault tolerance. It also allows for load balancing. Reads and writes can be sent to different servers where replicas live based on traffic to specific servers.
+
+**Replication Transparency** says that the client should not be aware of the multiple copies.
+
+**Replication Consistency** says that multiple clients should see a single consistent copy of data, despite replication.
+
+Passive replication uses an active or master copy. Active treats all replicas identically. Both approaches use the concept of "Replicated State Machine".
+
+One copy serializability refers to serial equivalence and for replicated servers.
 
 ### Two Phase Commit
