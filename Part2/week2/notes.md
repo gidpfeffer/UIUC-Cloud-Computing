@@ -41,6 +41,23 @@ One such solution is to check for serial equivalence with other overlapping proc
 
 ### Pessimistic Concurrency
 
+ONe example would be locking and unlocking. A downside is that processes which can be run concurrently (for example reads), are locked by mutual exclusion.
+
+Read-write locks address the above concern by allowing concurrent reads until a write is sent through.
+
+How do you ensure that serial equivalence is obtained? Two-phase locking allows for this. 
+
+Phase 1, Growing Phase: locks are only obtained.
+Phase 2, Shrinking Phase: locks are only released.
+
+Potential problem: deadlocks. One possible solution is to use timeouts. This can be expensive if timeouts occur often. Another approach is deadlock detection. You could use the Chandy Lamport algorithm (global snapshot), and detect wait-for loops.
+
+Combatting deadlocks: 
+
+* Allow reads only
+* Allow timeouts
+* Access all locks, if any fail, then abort
+
 ### Optimimstic Concurrency Control
 
 ## Replication Control
