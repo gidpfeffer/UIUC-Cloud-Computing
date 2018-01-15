@@ -90,3 +90,7 @@ Passive replication uses an active or master copy. Active treats all replicas id
 One copy serializability refers to serial equivalence and for replicated servers.
 
 ### Two Phase Commit
+
+A consensus algorithm is run to make sure that either all servers commit or none of them do. This leads to a series of failure related problems. 
+
+The two phase commit algorithm. The coordinator first sends a prepare message from a cordinator. The servers then save data to a log. If everything is ok, the servers responds with a YES vote. Otherwise, it sends a NO vote. If the coordinate recieves all yes responses, it sends a commit message, otherwise an abort message. Timeouts are also used to abort.
