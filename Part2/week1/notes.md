@@ -28,3 +28,36 @@ Use a variation of Paxos. Wuorem based leader election guarentees safety, but no
 ### Bully Leader Election
 
 Every server maintains a list of all other servers. When a leader is determined to have failed, the next highest attribute leader becomes the new leader. The new bully sends a cordinator message to all other servers. Or an election message is sent from a lower server to the higher ones until a response is recieved.
+
+## Mutual Exclusion
+
+### Problem
+
+At most one client is allowed to access an object at any point in time. The resource is accessed in a mutually exclusive manner.
+
+Identical programs can be run in different places and mutually exclusive access can still be ensured.
+
+Need to guarentee three properties:
+
+1. Safety - nothing bad ever happen (no two processes access critical section at a time)
+2. Liveness - every request is eventually granted
+3. Ordering - the requests are granted in the order in which they were made
+
+### Distributed Mutual Exclusion
+
+Central solution. A master is elected using leader elecetion. The master keeps a queue of waiting processes. It sends out a token when a section is ready. The process sends back the ptoken when it is done. And so on.
+
+Bandwidth: total number of messages sent between enter and exit.
+
+Client delay: time it would take to recieve access assuming no other process is in the queue.
+
+Synchronization delay: time between one process finishing and the next process starting.
+
+Ring Based:
+
+Token is passed in a ring until it reaches someone who needs it.
+
+### Ricart-Agrawala's Algorithm
+
+### Maekawa's Algorithm
+
