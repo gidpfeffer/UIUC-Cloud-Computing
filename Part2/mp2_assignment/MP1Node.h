@@ -31,7 +31,8 @@
 enum MsgTypes{
     JOINREQ,
     JOINREP,
-    DUMMYLASTMSGTYPE
+    LISTREQ,
+    LISTREP
 };
 
 /**
@@ -42,6 +43,13 @@ enum MsgTypes{
 typedef struct MessageHdr {
 	enum MsgTypes msgType;
 }MessageHdr;
+
+
+/**
+ * Used for pinging
+ *
+ */
+
 
 /**
  * CLASS NAME: MP1Node
@@ -55,6 +63,16 @@ private:
 	Params *par;
 	Member *memberNode;
 	char NULLADDR[6];
+	void recJoinReq(MessageHdr *msg);
+	void recJoinRep(MessageHdr *msg);
+	void recListReq(MessageHdr *msg);
+	bool put(int id, short port, long heartbeat);
+	void requestMembership();
+	void sendMemReq(MemberListEntry *entry);
+	void sendList(Address *reqaddr);
+	void recListRep(MessageHdr *msg, int size);
+	void updateList();
+	bool fail(MemberListEntry x);
 
 public:
 	MP1Node(Member *, Params *, EmulNet *, Log *, Address *);
