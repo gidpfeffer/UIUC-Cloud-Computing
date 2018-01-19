@@ -51,3 +51,7 @@ An invalidate approach can be used to guarentee that only one process is ever wr
 An alternative approach uses an update API. On a write, you send updates to other processes that also have the page. This is generally not as good of an approach as the anvalidate approach. 
 
 ## Sensor Networks
+
+Boards are comprised of CPU's, RAM, and busses generally. Sensors can be plugged into the boards and prorgams can be run on them.
+
+TinyOS is an OS designed for sensors. It uses a reactive mode which allows processes to sleep until they get a reaction.
