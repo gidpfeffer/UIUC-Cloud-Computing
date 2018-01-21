@@ -7,6 +7,8 @@
 #ifndef MP2NODE_H_
 #define MP2NODE_H_
 
+#define TIMEOUT 5
+
 /**
  * Header files
  */
@@ -18,6 +20,16 @@
 #include "Params.h"
 #include "Message.h"
 #include "Queue.h"
+
+typedef struct MessageWrapper{
+    int responses;
+    int successes;
+    int time;
+    MessageType type;
+    string* key;
+    string* val;
+    bool done = false;
+} wrapper;
 
 /**
  * CLASS NAME: MP2Node
@@ -47,6 +59,8 @@ private:
 	EmulNet * emulNet;
 	// Object of Log
 	Log * log;
+    
+    map<int, wrapper*> expecting;
 
 public:
 	MP2Node(Member *memberNode, Params *par, EmulNet *emulNet, Log *log, Address *addressOfMember);
@@ -87,7 +101,14 @@ public:
 
 	// stabilization protocol - handle multiple failures
 	void stabilizationProtocol();
-
+    
+    void handleMessage(Message *msg);
+    wrapper* initWrapper(MessageType type, string key, string val);
+    void processClient(MessageType type, string key, string val, int process_id);
+    void updateExpecting(Message *msg);
+    bool finalize(int id);
+    
+    
 	~MP2Node();
 };
 
