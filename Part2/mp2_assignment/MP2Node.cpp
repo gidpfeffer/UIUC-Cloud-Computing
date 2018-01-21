@@ -171,13 +171,19 @@ void MP2Node::clientDelete(string key){
  * 			   	1) Inserts key value into the local hash table
  * 			   	2) Return true or false based on success or failure
  */
-bool MP2Node::createKeyValue(string key, string value, ReplicaType replica) {
+bool MP2Node::createKeyValue(string key, string value, ReplicaType replica, int id) {
 	/*
 	 * Implement this
 	 */
 	// Insert key, value, replicaType into the hash table
     
-    return ht->create(key, value);
+    bool success = ht->create(key, value);
+    if (success) {
+        log->logCreateSuccess(&memberNode->addr, false, id, key, value);
+    } else {
+        log->logCreateFail(&memberNode->addr, false, id, key, value);
+    }
+    return success;
 }
 
 /**
@@ -188,13 +194,21 @@ bool MP2Node::createKeyValue(string key, string value, ReplicaType replica) {
  * 			    1) Read key from local hash table
  * 			    2) Return value
  */
-string MP2Node::readKey(string key) {
+string MP2Node::readKey(string key, int transID) {
 	/*
 	 * Implement this
 	 */
 	// Read key from local hash table and return value
     
-    return ht->read(key);
+    string val = ht->read(key);
+    
+    if(val != "") {
+        log->logReadSuccess(&memberNode->addr, false, transID, key, val);
+    } else {
+        log->logReadFail(&memberNode->addr, false, transID, key);
+    }
+    
+    return val;
 }
 
 /**
@@ -205,13 +219,21 @@ string MP2Node::readKey(string key) {
  * 				1) Update the key to the new value in the local hash table
  * 				2) Return true or false based on success or failure
  */
-bool MP2Node::updateKeyValue(string key, string value, ReplicaType replica) {
+bool MP2Node::updateKeyValue(string key, string value, ReplicaType replica, int transID) {
 	/*
 	 * Implement this
 	 */
 	// Update key in local hash table and return true or false
     
-    return ht->update(key, value);
+    bool success = ht->update(key, value);
+    
+    if (success) {
+        log->logUpdateSuccess(&memberNode->addr, false, transID, key, value);
+    } else {
+        log->logUpdateFail(&memberNode->addr, false, transID, key, value);
+    }
+    
+    return success;
 }
 
 /**
@@ -222,13 +244,19 @@ bool MP2Node::updateKeyValue(string key, string value, ReplicaType replica) {
  * 				1) Delete the key from the local hash table
  * 				2) Return true or false based on success or failure
  */
-bool MP2Node::deletekey(string key) {
+bool MP2Node::deletekey(string key, int transID) {
 	/*
 	 * Implement this
 	 */
 	// Delete the key from the local hash table
     
-    return ht->deleteKey(key);
+    bool success = ht->deleteKey(key);
+    if (success) {
+        log->logDeleteSuccess(&memberNode->addr, false, transID, key);
+    } else {
+        log->logDeleteFail(&memberNode->addr, false, transID, key);
+    }
+    return success;
 }
 
 /**
@@ -356,6 +384,22 @@ void MP2Node::stabilizationProtocol() {
 	/*
 	 * Implement this
 	 */
+    map<string,string> dict = ht->hashTable;
+    
+    int i;
+    for(i = 0; i < ring.size(); i++){
+        if(memberNode->addr == *(ring[i].getAddress())){
+            break;
+        }
+    }
+    
+    int rep1 = ((i+1)%ring.size());
+    int rep2 = ((i+2)%ring.size());
+    
+    vector<Node> replicas;
+    
+    replicas.emplace_back(ring.at(rep1));
+    replicas.emplace_back(ring.at(rep2));
     
 }
 
@@ -367,22 +411,22 @@ void MP2Node::handleMessage(Message *msg){
     Message* res;
     switch (msg->type){
         case CREATE:
-            res = new Message(msg->transID, memberNode->addr, REPLY, createKeyValue(msg->key, msg->value, msg->replica));
+            res = new Message(msg->transID, memberNode->addr, REPLY, createKeyValue(msg->key, msg->value, msg->replica, msg->transID));
             emulNet->ENsend(&memberNode->addr, &msg->fromAddr, res->toString());
             delete res;
             break;
         case READ:
-            res = new Message(msg->transID, memberNode->addr, readKey(msg->key));
+            res = new Message(msg->transID, memberNode->addr, readKey(msg->key, msg->transID));
             emulNet->ENsend(&memberNode->addr, &msg->fromAddr, res->toString());
             delete res;
             break;
         case UPDATE:
-            res = new Message(msg->transID, memberNode->addr, REPLY, updateKeyValue(msg->key, msg->value, msg->replica));
+            res = new Message(msg->transID, memberNode->addr, REPLY, updateKeyValue(msg->key, msg->value, msg->replica, msg->transID));
             emulNet->ENsend(&memberNode->addr, &msg->fromAddr, res->toString());
             delete res;
             break;
         case DELETE:
-            res = new Message(msg->transID, memberNode->addr, REPLY, deletekey(msg->key));
+            res = new Message(msg->transID, memberNode->addr, REPLY, deletekey(msg->key, msg->transID));
             emulNet->ENsend(&memberNode->addr, &msg->fromAddr, res->toString());
             delete res;
             break;
@@ -475,8 +519,7 @@ bool MP2Node::finalize(int id){
                     log->logCreateFail(&memberNode->addr, true, id, *(expecting[id]->key),  *(expecting[id]->val));
                     break;
                 case READ:
-                    log->logReadFail(&memberNode->addr, true, id, *(expecting[id]->key));
-                    break;
+                    log->logReadFail(&memberNode->addr, true, id, *(expecting[id]->key));                    break;
                 case UPDATE:
                     log->logUpdateFail(&memberNode->addr, true, id, *(expecting[id]->key),  *(expecting[id]->val));
                     break;

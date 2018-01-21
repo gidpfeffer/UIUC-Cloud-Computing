@@ -94,10 +94,10 @@ public:
 	vector<Node> findNodes(string key);
 
 	// server
-	bool createKeyValue(string key, string value, ReplicaType replica);
-	string readKey(string key);
-	bool updateKeyValue(string key, string value, ReplicaType replica);
-	bool deletekey(string key);
+	bool createKeyValue(string key, string value, ReplicaType replica, int id);
+	string readKey(string key, int transID);
+	bool updateKeyValue(string key, string value, ReplicaType replica, int transID);
+	bool deletekey(string key, int transID);
 
 	// stabilization protocol - handle multiple failures
 	void stabilizationProtocol();
