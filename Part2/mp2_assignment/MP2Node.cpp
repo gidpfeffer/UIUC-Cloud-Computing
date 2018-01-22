@@ -389,12 +389,29 @@ void MP2Node::stabilizationProtocol() {
     for (auto it = dict.cbegin(); it != dict.cend();)
     {
         vector<Node> reps = findNodes(it->first);
-        for(auto x = begin(reps); x != end(reps); ++x) {
-            if(!(*(x->getAddress()) == memberNode->addr)){
-                processClient(CREATE, it->first, it->second, -1);
+        if(reps.size() == 3){
+            bool shouldHave = *reps[0].getAddress() == memberNode->addr;
+            shouldHave |= *reps[1].getAddress() == memberNode->addr;
+            shouldHave |= *reps[2].getAddress() == memberNode->addr;
+            if(!shouldHave){
+                printf("caught a change\n");
+                dict.erase(it++);
             }
+            else{
+                ++it;
+            }
+            
+        } else{
+            ++it;
         }
-        ++it;
+    }
+    
+    for (auto it = expecting.cbegin(); it != expecting.cend();){
+        wrapper* w = it->second;
+        if(w->type == CREATE || w->type == UPDATE){
+            processClient(CREATE, *w->key, *w->val, -1);
+        }
+        it++;
     }
 }
 
