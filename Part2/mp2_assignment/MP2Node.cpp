@@ -462,6 +462,9 @@ wrapper* MP2Node::initWrapper(MessageType type, string key, string val){
     w->val = new string(val);
     w->time = par->getcurrtime();
     w->type = type;
+    w->val2 = 0;
+    w->val3 = 0;
+    w->val4 = 0;
     return w;
 }
 
@@ -494,7 +497,15 @@ void MP2Node::updateExpecting(Message* msg){
         else{
             if(msg->value != ""){
                 expecting[id]->successes++;
-                expecting[id]->val=new string(msg->value);
+                if(expecting[id]->val2 == 0){
+                    expecting[id]->val2=new string(msg->value);
+                }
+                else if(expecting[id]->val3 == 0){
+                    expecting[id]->val3=new string(msg->value);
+                }
+                else if(expecting[id]->val4 == 0){
+                    expecting[id]->val4=new string(msg->value);
+                }
             }
         }
         if(finalize(id)){
@@ -512,9 +523,15 @@ bool MP2Node::finalize(int id){
                 case CREATE:
                     log->logCreateSuccess(&memberNode->addr, true, id, *(expecting[id]->key), *(expecting[id]->val));
                     break;
-                case READ:
-                    log->logReadSuccess(&memberNode->addr, true, id, *(expecting[id]->key), *(expecting[id]->val));
+                case READ: {
+                    string* quorem = getQ(id);
+                    if(quorem == 0){
+                        log->logReadFail(&memberNode->addr, true, id, *(expecting[id]->key));
+                    } else{
+                        log->logReadSuccess(&memberNode->addr, true, id, *(expecting[id]->key), *quorem);
+                    }
                     break;
+                }
                 case UPDATE:
                     log->logUpdateSuccess(&memberNode->addr, true, id, *(expecting[id]->key), *(expecting[id]->val));
                     break;
@@ -547,4 +564,25 @@ bool MP2Node::finalize(int id){
         }
     }
     return false;
+}
+
+string* MP2Node::getQ(int id){
+    vector<string*> s;
+    
+    if(expecting[id]->val2 != 0) { s.push_back(expecting[id]->val2); }
+    if(expecting[id]->val3 != 0) { s.push_back(expecting[id]->val3); }
+    if(expecting[id]->val4 != 0) { s.push_back(expecting[id]->val4); }
+    
+    if(s.size() != 3){
+        return 0;
+    }
+    
+    if(*s[0] == *s[1]) { return s[0]; }
+    if(*s[0] == *s[2]) { return s[0]; }
+    if(*s[1] == *s[2]) { return s[1]; }
+    
+    s.clear();
+    
+    return 0;
+    
 }
