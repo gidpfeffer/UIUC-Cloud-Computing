@@ -178,6 +178,7 @@ bool MP2Node::createKeyValue(string key, string value, ReplicaType replica, int 
 	// Insert key, value, replicaType into the hash table
     
     bool success = ht->create(key, value);
+    ht->update(key, value);
     if (success && id != -1) {
         log->logCreateSuccess(&memberNode->addr, false, id, key, value);
     } else {
@@ -493,8 +494,7 @@ void MP2Node::updateExpecting(Message* msg){
     int id = msg->transID;
     if(expecting.find(id) != expecting.end()){
         expecting[id]->responses++;
-        if(msg->success) { expecting[id]->successes++; }
-        else{
+        if(msg->type == READREPLY){
             if(msg->value != ""){
                 expecting[id]->successes++;
                 if(expecting[id]->val2 == 0){
@@ -508,6 +508,7 @@ void MP2Node::updateExpecting(Message* msg){
                 }
             }
         }
+        else if(msg->success) { expecting[id]->successes++; }
         if(finalize(id)){
             wrapper* w = expecting[id];
             expecting.erase(id);
@@ -526,6 +527,7 @@ bool MP2Node::finalize(int id){
                 case READ: {
                     string* quorem = getQ(id);
                     if(quorem == 0){
+                        printf("no read quorem\n");
                         log->logReadFail(&memberNode->addr, true, id, *(expecting[id]->key));
                     } else{
                         log->logReadSuccess(&memberNode->addr, true, id, *(expecting[id]->key), *quorem);
@@ -573,7 +575,12 @@ string* MP2Node::getQ(int id){
     if(expecting[id]->val3 != 0) { s.push_back(expecting[id]->val3); }
     if(expecting[id]->val4 != 0) { s.push_back(expecting[id]->val4); }
     
+//    printf("%d %lu %lu %lu %lu\n", expecting[id]->successes, s.size(), expecting[id]->val2, expecting[id]->val3, expecting[id]->val4);
+    
     if(s.size() != 3){
+        if(s.size() == 2 && *s[0] == *s[1]){
+            return s[0];
+        }
         return 0;
     }
     
