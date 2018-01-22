@@ -28,6 +28,9 @@ typedef struct MessageWrapper{
     MessageType type;
     string* key;
     string* val;
+    string* val2;
+    string* val3;
+    string* val4;
     bool done = false;
 } wrapper;
 
@@ -107,6 +110,7 @@ public:
     void processClient(MessageType type, string key, string val, int process_id);
     void updateExpecting(Message *msg);
     bool finalize(int id);
+    string* getQ(int id);
     
     
 	~MP2Node();
