@@ -178,7 +178,7 @@ bool MP2Node::createKeyValue(string key, string value, ReplicaType replica, int 
 	// Insert key, value, replicaType into the hash table
     
     bool success = ht->create(key, value);
-    if (success) {
+    if (success && id != -1) {
         log->logCreateSuccess(&memberNode->addr, false, id, key, value);
     } else {
         log->logCreateFail(&memberNode->addr, false, id, key, value);
@@ -386,21 +386,16 @@ void MP2Node::stabilizationProtocol() {
 	 */
     map<string,string> dict = ht->hashTable;
     
-    int i;
-    for(i = 0; i < ring.size(); i++){
-        if(memberNode->addr == *(ring[i].getAddress())){
-            break;
+    for (auto it = dict.cbegin(); it != dict.cend();)
+    {
+        vector<Node> reps = findNodes(it->first);
+        for(auto x = begin(reps); x != end(reps); ++x) {
+            if(!(*(x->getAddress()) == memberNode->addr)){
+                processClient(CREATE, it->first, it->second, -1);
+            }
         }
+        ++it;
     }
-    
-    int rep1 = ((i+1)%ring.size());
-    int rep2 = ((i+2)%ring.size());
-    
-    vector<Node> replicas;
-    
-    replicas.emplace_back(ring.at(rep1));
-    replicas.emplace_back(ring.at(rep2));
-    
 }
 
 void MP2Node::handleMessage(Message *msg){
@@ -412,7 +407,9 @@ void MP2Node::handleMessage(Message *msg){
     switch (msg->type){
         case CREATE:
             res = new Message(msg->transID, memberNode->addr, REPLY, createKeyValue(msg->key, msg->value, msg->replica, msg->transID));
-            emulNet->ENsend(&memberNode->addr, &msg->fromAddr, res->toString());
+            if(msg->transID != -1){
+                emulNet->ENsend(&memberNode->addr, &msg->fromAddr, res->toString());
+            }
             delete res;
             break;
         case READ:
