@@ -145,7 +145,7 @@ class BandwidthMonitor(app_manager.RyuApp):
 
         if name in self.topo.edgeSwitches:
             for stat in body:
-                if self.topo.ports[name][stat.port_no] in self.topo.hosts:
+                if stat.port_no in self.topo.ports[name] and self.topo.ports[name][stat.port_no] in self.topo.hosts:
                     self.bwstats.addHostBwStat(self.topo.ports[name][stat.port_no], stat.tx_bytes, stat.rx_bytes)
 
         # periodically print tenant bandwidth usage
