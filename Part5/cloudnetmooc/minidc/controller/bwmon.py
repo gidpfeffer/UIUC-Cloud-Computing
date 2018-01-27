@@ -143,6 +143,9 @@ class BandwidthMonitor(app_manager.RyuApp):
 
         # [ ADD YOUR CODE HERE ]
 
+        for stat in body:
+            self.bwstats.addHostBwStat(self.topo.ports[name][stat.port_no], stat.tx_bytes, stat.rx_bytes)
+
         # periodically print tenant bandwidth usage
         self.statsReplied += 1
         if self.statsReplied == len(self.datapaths):
